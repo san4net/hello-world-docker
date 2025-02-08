@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+        name: hello-docker
+  datasource:
+       url: jdbc:postgresql://local-pg:5432/hello-db  # Database host and name
+       username: root  # Database username
+       password: admin123  # Database password
+       driver-class-name: org.postgresql.Driver  # PostgreSQL driver
+
+       jpa:
+         database-platform: org.hibernate.dialect.PostgreSQLDialect
+         hibernate:
+            ddl-auto: update  # Automatically update the schema
+            show-sql: true  # Show SQL queries in logs
+            properties:
+              hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect

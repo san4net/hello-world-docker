@@ -1,0 +1,51 @@
+services:
+  local-pg:
+      restart: always
+      image: postgres:15
+      container_name: local-pg
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/tmp/db-data
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=pass
+        - POSTGRES_DB:hello-db
+
+  init-db:
+    image: postgres:15
+    depends_on:
+      local-pg:
+        condition: service_healthy
+    restart: no
+    volumes:
+      - "./db:/scripts"
+    environment:
+      PGPASSWORD: pass
+    entrypoint: "psql -U postgres -d postgres -h local-pg -f /scripts/init.sh"
+
+  hello-world:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hello-world-server
+    restart: always
+    depends_on:
+      - local-pg
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_NAME: mydatabase
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+
